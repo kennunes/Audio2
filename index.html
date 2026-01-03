@@ -26,23 +26,25 @@
         .loader {
             border: 3px solid #f3f3f3;
             border-radius: 50%;
-            border-top: 3px solid #3b82f6;
+            border-top: 3px solid #eab308;
             width: 20px;
             height: 20px;
-            -webkit-animation: spin 1s linear infinite; /* Safari */
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-300">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col items-center justify-center p-4 md:p-6 transition-colors duration-300 font-sans">
 
-    <div class="max-w-3xl w-full bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+    <div class="max-w-3xl w-full bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden relative">
         
         <!-- Header -->
         <div class="bg-slate-100 dark:bg-slate-800/50 p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-lg text-white">
+                <div class="bg-brand-500 bg-blue-600 p-2 rounded-lg text-white shadow-lg">
                     <i data-lucide="mic" class="w-6 h-6"></i>
                 </div>
                 <div>
@@ -50,9 +52,25 @@
                     <p class="text-xs text-slate-500 dark:text-slate-400">AI Neural Voice Generator (Gemini 2.5)</p>
                 </div>
             </div>
-            <div class="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold rounded-full border border-green-200 dark:border-green-800">
-                Connected
+            <div class="flex items-center gap-2">
+                <button onclick="toggleSettings()" class="p-2 text-slate-400 hover:text-blue-500 transition-colors" title="API Settings">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
+                <div id="connection-status" class="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-bold rounded-full border border-red-200 dark:border-red-800">
+                    Key Required
+                </div>
             </div>
+        </div>
+
+        <!-- Settings Panel (Hidden by default) -->
+        <div id="settings-panel" class="hidden p-6 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-800 fade-in">
+            <h3 class="text-sm font-bold text-blue-700 dark:text-blue-400 mb-2">Configuration</h3>
+            <p class="text-xs text-blue-600 dark:text-blue-500 mb-4">To use this app outside of the private environment, you must provide a Gemini API Key.</p>
+            <div class="flex gap-2">
+                <input type="password" id="api-key-input" placeholder="Paste your API Key here..." class="flex-1 bg-white dark:bg-slate-950 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="saveApiKey()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">Save Key</button>
+            </div>
+            <p class="mt-2 text-[10px] text-blue-400 italic">Key is stored locally in your browser. Never share your key with others.</p>
         </div>
 
         <!-- Content Area -->
@@ -62,9 +80,9 @@
             <div>
                 <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2 flex justify-between">
                     <span>Script Text</span>
-                    <span class="text-xs opacity-50">Editable</span>
+                    <span class="text-xs opacity-50">Chapters can be pasted here</span>
                 </label>
-                <textarea id="scriptText" rows="12" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm leading-relaxed text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none font-mono" spellcheck="false">Manual Data Capture - WATER:
+                <textarea id="scriptText" rows="10" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm leading-relaxed text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none font-mono" spellcheck="false">Manual Data Capture - WATER:
 
 Since 2017, we have engaged with schools in capturing twice daily readings of water meters. At first, this was a hand written exercise transferred to a spreadsheet—laborious but very effective. With the advent of the mobile phone, this became pictures taken and then further developments sent via WhatsApp. Today, the images are immediately uploaded to an online platform, where the data is immediately shared with all decision makers in the school. The principal, bursar, all SGB members, immediately are able to accompany the data trends being captured.
 
@@ -87,16 +105,16 @@ From in-depth research of 16-schools in Johannesburg, between 2017 and 2025, we 
                 <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/20 hover:border-blue-500 transition-colors group">
                     <div class="flex justify-between items-start mb-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                                 <i data-lucide="user" class="w-5 h-5"></i>
                             </div>
                             <div>
                                 <h3 class="font-bold text-slate-700 dark:text-slate-200">Fenrir</h3>
-                                <p class="text-xs text-slate-500">Male • Deep • Authoritative</p>
+                                <p class="text-xs text-slate-500">Male • Aspirational • Strong</p>
                             </div>
                         </div>
                     </div>
-                    <button onclick="generateSpeech('Fenrir', 'male-audio', 'male-btn')" id="male-btn" class="w-full py-2 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 text-white rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2">
+                    <button onclick="generateSpeech('Fenrir', 'male-audio', 'male-btn')" id="male-btn" class="w-full py-2 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 text-white rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2">
                         <i data-lucide="play" class="w-4 h-4"></i> Generate & Play
                     </button>
                     <div id="male-audio" class="mt-4 hidden animate-in fade-in slide-in-from-top-2">
@@ -111,16 +129,16 @@ From in-depth research of 16-schools in Johannesburg, between 2017 and 2025, we 
                 <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/20 hover:border-purple-500 transition-colors group">
                     <div class="flex justify-between items-start mb-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400">
+                            <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
                                 <i data-lucide="user" class="w-5 h-5"></i>
                             </div>
                             <div>
                                 <h3 class="font-bold text-slate-700 dark:text-slate-200">Aoede</h3>
-                                <p class="text-xs text-slate-500">Female • Sophisticated • Clear</p>
+                                <p class="text-xs text-slate-500">Female • Professional • Clear</p>
                             </div>
                         </div>
                     </div>
-                    <button onclick="generateSpeech('Aoede', 'female-audio', 'female-btn')" id="female-btn" class="w-full py-2 bg-slate-900 dark:bg-purple-600 hover:bg-slate-800 dark:hover:bg-purple-500 text-white rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2">
+                    <button onclick="generateSpeech('Aoede', 'female-audio', 'female-btn')" id="female-btn" class="w-full py-2 bg-slate-900 dark:bg-purple-600 hover:bg-slate-800 dark:hover:bg-purple-500 text-white rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2">
                         <i data-lucide="play" class="w-4 h-4"></i> Generate & Play
                     </button>
                     <div id="female-audio" class="mt-4 hidden animate-in fade-in slide-in-from-top-2">
@@ -134,7 +152,7 @@ From in-depth research of 16-schools in Johannesburg, between 2017 and 2025, we 
             </div>
 
             <!-- Error Message -->
-            <div id="error-msg" class="hidden p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm rounded-lg"></div>
+            <div id="error-msg" class="hidden p-4 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm rounded-xl"></div>
 
         </div>
     </div>
@@ -144,9 +162,74 @@ From in-depth research of 16-schools in Johannesburg, between 2017 and 2025, we 
         lucide.createIcons();
 
         // API Configuration
-        const apiKey = ""; // Injected by environment
+        let currentApiKey = ""; // Will be populated by environment or user
+
+        // Check for key on load
+        window.onload = () => {
+            const savedKey = localStorage.getItem('suntricity_api_key');
+            if (savedKey) {
+                currentApiKey = savedKey;
+                document.getElementById('api-key-input').value = savedKey;
+                updateStatus(true);
+            }
+        };
+
+        function toggleSettings() {
+            const panel = document.getElementById('settings-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        function saveApiKey() {
+            const val = document.getElementById('api-key-input').value.trim();
+            if (val) {
+                localStorage.setItem('suntricity_api_key', val);
+                currentApiKey = val;
+                updateStatus(true);
+                toggleSettings();
+            }
+        }
+
+        function updateStatus(active) {
+            const status = document.getElementById('connection-status');
+            if (active) {
+                status.textContent = "Key Active";
+                status.className = "px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold rounded-full border border-green-200 dark:border-green-800";
+            } else {
+                status.textContent = "Key Required";
+                status.className = "px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-bold rounded-full border border-red-200 dark:border-red-800";
+            }
+        }
+
+        // --- Exponential Backoff Fetch ---
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return response;
+                    
+                    // If unauthorized, stop retrying
+                    if (response.status === 401 || response.status === 403) {
+                        throw new Error("Invalid API Key. Please check your settings.");
+                    }
+                } catch (err) {
+                    if (i === maxRetries - 1) throw err;
+                }
+                // Exponential backoff: 1s, 2s, 4s, 8s, 16s
+                await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+            }
+        }
 
         async function generateSpeech(voiceName, containerId, btnId) {
+            // Environment key takes precedence, otherwise use stored key
+            const apiKeyToUse = (typeof __apiKey !== 'undefined' && __apiKey) ? __apiKey : currentApiKey;
+
+            if (!apiKeyToUse) {
+                document.getElementById('error-msg').textContent = "Error: API Key is missing. Click the Settings icon to add your Gemini API Key.";
+                document.getElementById('error-msg').classList.remove('hidden');
+                document.getElementById('settings-panel').classList.remove('hidden');
+                return;
+            }
+
             const text = document.getElementById('scriptText').value;
             const container = document.getElementById(containerId);
             const btn = document.getElementById(btnId);
@@ -162,7 +245,7 @@ From in-depth research of 16-schools in Johannesburg, between 2017 and 2025, we 
             btn.disabled = true;
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKeyToUse}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -180,13 +263,11 @@ From in-depth research of 16-schools in Johannesburg, between 2017 and 2025, we 
                     })
                 });
 
-                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
-
                 const data = await response.json();
                 
                 // Extract Audio (PCM)
                 const base64Audio = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-                if (!base64Audio) throw new Error("No audio data received.");
+                if (!base64Audio) throw new Error("No audio data received. Check your script text.");
 
                 // Convert Base64 to ArrayBuffer (PCM)
                 const binaryString = window.atob(base64Audio);
@@ -195,8 +276,8 @@ From in-depth research of 16-schools in Johannesburg, between 2017 and 2025, we 
                     pcmData[i] = binaryString.charCodeAt(i);
                 }
 
-                // Convert PCM to WAV
-                const wavBlob = pcmToWav(pcmData, 24000); // Gemini TTS usually 24kHz
+                // Convert PCM to WAV (Gemini TTS is 24kHz)
+                const wavBlob = pcmToWav(pcmData, 24000); 
                 const audioUrl = URL.createObjectURL(wavBlob);
 
                 // Update UI
@@ -209,7 +290,7 @@ From in-depth research of 16-schools in Johannesburg, between 2017 and 2025, we 
 
             } catch (err) {
                 console.error(err);
-                errorDiv.textContent = "Error generating audio: " + err.message;
+                errorDiv.textContent = "Error: " + err.message;
                 errorDiv.classList.remove('hidden');
             } finally {
                 btn.innerHTML = originalBtnText;
@@ -237,8 +318,8 @@ From in-depth research of 16-schools in Johannesburg, between 2017 and 2025, we 
 
             // fmt sub-chunk
             writeString(view, 12, 'fmt ');
-            view.setUint32(16, 16, true); // Subchunk1Size (16 for PCM)
-            view.setUint16(20, 1, true); // AudioFormat (1 for PCM)
+            view.setUint32(16, 16, true); 
+            view.setUint16(20, 1, true); 
             view.setUint16(22, numChannels, true);
             view.setUint32(24, sampleRate, true);
             view.setUint32(28, byteRate, true);
